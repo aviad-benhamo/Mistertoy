@@ -4,7 +4,7 @@ import cors from 'cors'
 import { logger } from './services/logger.service.js'
 import { toyRoutes } from './api/toy/toy.route.js'
 import { userRoutes } from './api/user/user.routes.js'
-
+import { authRoutes } from './api/auth/auth.routes.js'
 
 const app = express()
 
@@ -24,6 +24,7 @@ app.use(cors(corsOptions))
 // Routes
 app.use('/api/toy', toyRoutes)
 app.use('/api/user', userRoutes)
+app.use('/api/auth', authRoutes)
 
 // Fallback route
 app.get('/*all', (req, res) => {
