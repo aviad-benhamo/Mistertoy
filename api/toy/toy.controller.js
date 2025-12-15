@@ -3,8 +3,21 @@ import { logger } from '../../services/logger.service.js'
 
 export async function getToys(req, res) {
     try {
-        const filterBy = req.query
-        const toys = await toyService.query(filterBy)
+        const { txt, maxPrice, inStock, sortBy } = req.query
+        const labels = req.query.labels || req.query['labels[]']
+        // Construction of the filterBy object
+        const filterBy = {
+            txt: txt || '',
+            maxPrice: +maxPrice || 0,
+            inStock: inStock === 'true' ? true : (inStock === 'false' ? false : undefined),
+            labels: labels ? (Array.isArray(labels) ? labels : [labels]) : [],
+        }
+
+        const sortParam = req.query.sortBy
+
+        logger.debug('Getting Toys', { filterBy })
+
+        const toys = await toyService.query(filterBy, sortParam)
         res.json(toys)
     } catch (err) {
         logger.error('Failed to get toys', err)

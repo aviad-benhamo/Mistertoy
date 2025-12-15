@@ -9,10 +9,10 @@ export const toyService = {
     save
 }
 
-async function query(filterBy = {}) {
+async function query(filterBy = {}, sortParam = {}) {
     try {
         const criteria = _buildCriteria(filterBy)
-        const sortCriteria = _buildSortCriteria(filterBy)
+        const sortCriteria = _buildSortCriteria(sortParam)
 
         const collection = await dbService.getCollection('toy')
         var toys = await collection.find(criteria).sort(sortCriteria).toArray()
@@ -75,27 +75,35 @@ async function save(toy) {
 function _buildCriteria(filterBy) {
     const criteria = {}
 
+    // Filter by name (regex)
     if (filterBy.name) {
         criteria.name = { $regex: filterBy.name, $options: 'i' }
     }
 
+    // Filter by max price (added for completeness)
+    if (filterBy.maxPrice) {
+        criteria.price = { $lte: filterBy.maxPrice }
+    }
+
+    // Filter by inStock
     if (filterBy.inStock !== undefined && filterBy.inStock !== '') {
         criteria.inStock = (filterBy.inStock === 'true' || filterBy.inStock === true)
     }
 
-    if (filterBy.labels && filterBy.labels.length) {
-        const labels = Array.isArray(filterBy.labels) ? filterBy.labels : filterBy.labels.split(',')
-        criteria.labels = { $in: labels }
+    // Filter by labels
+    // Assuming filterBy.labels is strictly an array (handled by Controller)
+    if (filterBy.labels && filterBy.labels.length > 0) {
+        criteria.labels = { $in: filterBy.labels }
     }
 
     return criteria
 }
 
-function _buildSortCriteria(filterBy) {
+function _buildSortCriteria(sortParam) {
     const criteria = {}
 
-    if (filterBy.sortBy) {
-        criteria[filterBy.sortBy] = 1
+    if (sortParam && sortParam.type) {
+        criteria[sortParam.type] = (sortParam.desc === -1 || sortParam.desc === '-1') ? -1 : 1
     }
 
     return criteria
