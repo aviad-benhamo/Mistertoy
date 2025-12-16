@@ -54,13 +54,9 @@ async function save(toy) {
 
         if (toy._id) {
             // Update
-            const id = toy._id
-            delete toyToSave._id
+            const { _id, ...toyToSave } = toy
 
-            const toyToSave = { ...toy }
-
-            await collection.updateOne({ _id: new ObjectId(id) }, { $set: toyToSave })
-            toy._id = id
+            await collection.updateOne({ _id: new ObjectId(_id) }, { $set: toyToSave })
             return toy
         } else {
             // Create
