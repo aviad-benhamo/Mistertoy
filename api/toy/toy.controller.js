@@ -15,7 +15,6 @@ export async function getToys(req, res) {
 
         const sortParam = req.query.sortBy
 
-        logger.debug('Getting Toys', { filterBy })
 
         const toys = await toyService.query(filterBy, sortParam)
         res.json(toys)
@@ -70,5 +69,35 @@ export async function removeToy(req, res) {
     } catch (err) {
         logger.error('Failed to remove toy', err)
         res.status(500).send({ err: 'Failed to remove toy' })
+    }
+}
+
+export async function addToyMsg(req, res) {
+    const { loggedinUser } = req
+    try {
+        const toyId = req.params.id
+        const msg = {
+            txt: req.body.txt,
+            by: loggedinUser
+        }
+        const savedMsg = await toyService.addToyMsg(toyId, msg)
+        res.json(savedMsg)
+    } catch (err) {
+        logger.error('Failed to update toy', err)
+        res.status(500).send({ err: 'Failed to update toy' })
+    }
+}
+
+export async function removeToyMsg(req, res) {
+    // const { loggedinUser } = req // Can be used later for permission checks
+    try {
+        const toyId = req.params.id
+        const { msgId } = req.params
+
+        const removedId = await toyService.removeToyMsg(toyId, msgId)
+        res.send(removedId)
+    } catch (err) {
+        logger.error('Failed to remove toy msg', err)
+        res.status(500).send({ err: 'Failed to remove toy msg' })
     }
 }
